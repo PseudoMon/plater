@@ -8,14 +8,14 @@ To run Plater you'll need Python 3. Plater requires Markdown and Jinja2.
 
 Copy or clone this repository to wherever directory you want to work in. Put `__main__.py` and `settings.py` in a folder title `plater`.
 
-Edit `settings.py` as you like. For more details see the section below.
+Edit `settings.py` as you like. For more details see the sections below.
 
 Create a folder for your templates and another folder for your site contents. You can name them whatever as long as it's consistent with the names in `settings.py`. By the end you should have three different folders in your working directory: templates, contents, and plater.
 
 In that directory, run `python plater` and your website will be generated, assuming the templates and contents are there.
 
 ## Content and Metadata
-Plater will look at your content folder and create a page out of every markdown file in there, unless noted otherwise (see below). The file can have some metadata written at its top like this:"
+Plater will look at your content folder and create a page out of every markdown file in there, unless noted otherwise (see below sections). The file can have some metadata written at its top like this:"
 ```
 title: Title of the page
 type: blog
@@ -27,7 +27,7 @@ You can make any metadata you like according to your needs. These metadatas are 
 
 - 'type' define what kind of content it is, which will be used when deciding the page's template, whether it will be indexed, and whether the page will be generated at all.
 
-- 'slug' will be used for the filename of the generated page. Don't include extensions. Slug will be used as-is, so please make sure it can be used as a clean URL (see below) 
+- 'slug' will be used for the filename of the generated page. Don't include extensions. Slug will be used as-is, so please make sure it can be used as a clean URL (see below section) 
 
 -  'subdir', if provided and is anything but 'home' or 'none', will cause the page to be generated in a subdirectory. Multiple subdirectories is not yet supported. (Example: `subdir: fiction` will create the directory fiction  in your output directory if it doesn't already exist, and put the generated file in there)
 
@@ -74,7 +74,7 @@ Plater doesn't do anything to your output folder other than generating its pages
 
 ## Future Features
 - Sort by something other than date
-
+- Turn this into a proper PyPi package?
  
 
 
