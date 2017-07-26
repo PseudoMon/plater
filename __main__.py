@@ -6,7 +6,7 @@ import glob
 import os
 
 if not os.path.exists(settings.outdir):
-    os.makedir(settings.outdir)
+    os.makedirs(settings.outdir)
     
 env = Environment(loader=FileSystemLoader('templates'))
 md = markdown.Markdown(extensions=
@@ -29,15 +29,17 @@ def createPage(post):
     
     if 'subdir' in post:
         if post['subdir'] != ('home' or 'none'): 
-            subdir = post['subdir'] + "/"
-            if not os.path.exists(subdir):
-                os.makedir(settings.outdir)
-    
+            dir = "{}/{}".format(settings.outdir, post['subdir'])
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            dir = dir + "/"
+            
+        else:
+            dir = "{}/".format(settings.outdir)
     else:
-        subdir = ""
+        dir = "{}/".format(settings.outdir)
     
-    filename = "{}/{}{}.html".format(
-        settings.outdir, subdir, post['slug'])
+    filename = "{}{}.html".format(dir, post['slug'])
     with open(filename, 'w') as fout:
         fout.write(output)
         
@@ -95,7 +97,7 @@ def processFile(filename):
             filename.lower().split())
             
     if 'date' not in meta:
-        meta['date'] = 0
+        meta['date'] = "0"
             
     post = meta
     post['content'] = content
@@ -119,12 +121,14 @@ def indexPosts(posts):
             createIndex(type, indexed[type])
            
     if 'home' in settings.indexes:
-            createIndex('home', posts)
+            createIndex('home', indexed)
 
 
 posts = []
-contentfiles = glob.glob('{}/*{}'.format(
-    settings.contentfolder, settings.contentext))
+print("Searching {}/*{}".format(
+    settings.contentfolder, settings.contentext)) 
+contentfiles = glob.glob('{}/**/*{}'.format(
+    settings.contentfolder, settings.contentext), recursive=True)
 
 print("Processing files:")
 for filename in contentfiles:
