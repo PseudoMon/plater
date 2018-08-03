@@ -1,4 +1,4 @@
-siteurl = 'something.com' #for permalinks
+siteurl = 'something.com' #the site's base url
 templatefolder = 'templates'
 contentfolder = 'contents'
 contentext = '.md' #file extension of content
@@ -6,14 +6,12 @@ outdir = 'output'
 
 dontpost = ['dataonly']
 
-# Format:
-# type of post: name of template file in templates folder 
+# Template files used for generating specific pages
+# type of post: name of template file in templates folder
 templates = {
     'home': 'index.html',
     'default': 'single.html' }
-    
-# Format:
-# type of posts: address to the index 
+
+# Used for creating index files
+# type of posts: the index's filename
 indexes = {'home': 'index'}
-
-
