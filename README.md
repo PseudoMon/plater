@@ -6,16 +6,16 @@ I made Plater because I'm just looking for a simple way to make static sites wit
 ## Setting up
 To run Plater you'll need Python 3. Plater requires Markdown and Jinja2.
 
-Copy or clone this repository to wherever directory you want to work in. Put `__main__.py` and `settings.py` in a folder titled `plater`.
+Copy or clone this repository to wherever directory you want to work in. The files `__main__.py` and `settings.py` should be in a directory named `plater`.
 
 Edit `settings.py` as you like. For more details see the sections below.
 
-Create a folder for your templates and another folder for your site contents. You can name them whatever as long as it's consistent with the names in `settings.py`. By the end you should have three different folders in your working directory: templates, contents, and plater.
+Create a directory for your templates and another directory for your site contents. You can name them whatever as long as it's consistent with the names in `settings.py`. By the end you should have three different directories in your main directory: templates, contents, and plater.
 
-In that directory, run `python plater` and your website will be generated, assuming the templates and contents are there.
+In the main directory, run `python plater` and your website will be generated, assuming the templates and contents are there.
 
 ## Content and Metadata
-Plater will look at your content folder and create a page out of every markdown file in there, unless noted otherwise (see below sections). The file can have some metadata written at its top like this:
+Plater will look at your content directory and create a page out of every markdown file in there, unless noted otherwise (see below sections). The file can have some metadata written at its top like this:
 ```
 title: Title of the page
 type: blog
@@ -59,7 +59,7 @@ templates = {
     'photo album': 'album.html',
     'blog_index': archive.html' }
 ```
-When generating a content with the type "photo album", Plater will look in your template folder for `album.html` and use that. When it's generating a content with type "post", it will use the default `single.html` as there isn't a specific template for that type.
+When generating a content with the type "photo album", Plater will look in your template directory for `album.html` and use that. When it's generating a content with type "post", it will use the default `single.html` as there isn't a specific template for that type.
 
 "home" is a special template used for your homepage. Those that ends in `_index` are used for index pages (see below).
 
@@ -98,7 +98,7 @@ Content of a post can be accessed by using `post['content']`. Metadatas can be a
 It's possible to create a content file without later generating a page out of it (you might want that such as when creating a draft, or if you only need to use its metadata). There are two ways to go about it. You can either add a `draft` metadata to the content (it doesn't matter what you fill it with), or you can put the content's type in the variable `dontpost` in the settings file.
 
 ## Static Files
-Plater doesn't do anything to your output folder other than inserting the pages it generated. If you want to add static files, such as stylesheets, Javascripts, images, etc, you can simply add them to the output folder. Plater also doesn't remove any files from the output folder, so if there's any unused files, you'll have to remove them yourself.
+Plater doesn't do anything to your output directory other than inserting the pages it generated. If you want to add static files, such as stylesheets, Javascripts, images, etc, you can simply add them to the output directory. Plater also doesn't remove any files from the output directory, so if there's any unused files, you'll have to remove them yourself.
 
 ## Local Testing
 For local testing, I suggest setting `siteurl` to `localhost:[port]`. And then when you're trying to test the site, make a local server by running `python -m http.server [port]`. If port is not provided, it'll default to `8000`. Just remember to change `siteurl` back and regenerating when you're ready to upload to the real server.    
