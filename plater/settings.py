@@ -1,8 +1,8 @@
 siteurl = 'something.com' #the site's base url
-templatefolder = 'templates'
-contentfolder = 'contents'
+templatedir = 'templates' # the name of your template dir
+contentdir = 'contents' # the name of your content dir
 contentext = '.md' #file extension of content
-outdir = 'output'
+outdir = 'output' # where Plater will put the result
 
 dontpost = ['dataonly']
 
