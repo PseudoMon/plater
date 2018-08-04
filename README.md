@@ -101,7 +101,7 @@ It's possible to create a content file without later generating a page out of it
 Plater doesn't do anything to your output directory other than inserting the pages it generated. If you want to add static files, such as stylesheets, Javascripts, images, etc, you can simply add them to the output directory. Plater also doesn't remove any files from the output directory, so if there's any unused files, you'll have to remove them yourself.
 
 ## Local Testing
-For local testing, I suggest setting `siteurl` to `localhost:[port]`. And then when you're trying to test the site, make a local server by running `python -m http.server [port]`. If port is not provided, it'll default to `8000`. Just remember to change `siteurl` back and regenerating when you're ready to upload to the real server.    
+For local testing, I suggest setting `siteurl` to `http://localhost:[port]`. And then when you're trying to test the site, make a local server by running `python -m http.server [port]`. If port is not provided, it'll default to `8000`. Just remember to change `siteurl` back and regenerating when you're ready to upload to the real server.    
 
 ## Future Features
 - Sort by something other than date
