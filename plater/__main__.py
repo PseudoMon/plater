@@ -3,6 +3,7 @@ from jinja2 import Environment, FileSystemLoader
 from jinja2 import exceptions as jinjaerror
 import markdown
 import glob
+import re
 import os
 
 if not os.path.exists(settings.outdir):
@@ -90,11 +91,13 @@ def processFile(filename):
     if 'slug' in meta:
         pass
     elif 'title' in meta:
-        meta['slug'] = "-".join(meta['title'].lower().split())
+        # Create valid output file name from title
+        meta['slug'] = re.sub(r'[^\w\d\s\-\_]', '', meta['title'])
+        meta['slug'] = re.sub(r'\s', '-', meta['slug']).lower()
     else:
+        # Create output file name from file name
         filename = filename.split('.')[0]
-        meta['slug'] = "-".join(
-            filename.lower().split())
+        meta['slug'] = re.sub(r'\s', '-', filename).lower()
 
     if 'date' not in meta:
         meta['date'] = "0"
@@ -121,7 +124,7 @@ def indexPosts(posts):
             createIndex(type, indexed[type])
 
     if 'home' in settings.indexes:
-            createIndex('home', indexed)
+        createIndex('home', indexed)
 
 
 posts = []
