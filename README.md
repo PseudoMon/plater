@@ -97,11 +97,13 @@ Content of a post can be accessed by using `post['content']`. Metadatas can be a
 ## Dontpost and Drafts
 It's possible to create a content file without later generating a page out of it (you might want that such as when creating a draft, or if you only need to use its metadata). There are two ways to go about it. You can either add a `draft` metadata to the content (it doesn't matter what you fill it with), or you can put the content's type in the variable `dontpost` in the settings file.
 
+Please note that these pages will still be available in the `posts` variable when generating indexes. If you don't want your index page to contain these posts, simply don't include them in your template.
+
 ## Static Files
 Plater doesn't do anything to your output directory other than inserting the pages it generated. If you want to add static files, such as stylesheets, Javascripts, images, etc, you can simply add them to the output directory. Plater also doesn't remove any files from the output directory, so if there's any unused files, you'll have to remove them yourself.
 
 ## Local Testing
-For local testing, I suggest setting `siteurl` to `http://localhost:[port]`. And then when you're trying to test the site, make a local server by running `python -m http.server [port]`. If port is not provided, it'll default to `8000`. Just remember to change `siteurl` back and regenerating when you're ready to upload to the real server.    
+For local testing, I suggest setting `siteurl` to `http://localhost:[port]`. And then when you're trying to test the site, make a local server by running `python -m http.server [port]`. The default port is `8000`. Just remember to change `siteurl` back and regenerating when you're ready to upload to the real server.    
 
 ## Future Features
 - Sort by something other than date
