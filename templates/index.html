@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<h1>This is an example homepage!</h1>
+<p>
+  For details on how to use Plater, see the
+  <a href="https://github.com/PseudoMon/Plater">Readme</a>.
+  For more help, just <a href="https://pseudomon.github.io/contact">contact</a>
+  the guy who wrote this!
+</p>
+
+<h2>Pages Created:</h2>
+
+{% for post in posts %}
+{% if post['type'] != 'dataonly' %}
+<div>
+  <h4><a href="{{ siteurl }}/{{ post['slug'] }}.html">
+    {{ post['title'] }}
+  </a></h4>
+  <p>
+    The type of this page is {{ post['type'] }}.
+  </p>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock %}
