@@ -6,11 +6,13 @@ I made Plater because I'm just looking for a simple way to make static sites wit
 ## Setting up
 To run Plater you'll need Python 3. Plater requires Markdown and Jinja2.
 
-Copy or clone this repository to wherever directory you want to work in. The files `__main__.py` and `settings.py` should be in a directory named `plater`.
+Copy or clone this repository to wherever directory you want to work in. This repo already contains example template and contents, but you can remove those if you like.
+
+The files `__main__.py` and `settings.py` should be in a directory named `plater`.
 
 Edit `settings.py` as you like. For more details see the sections below.
 
-Create a directory for your templates and another directory for your site contents. You can name them whatever as long as it's consistent with the names in `settings.py`. By the end you should have three different directories in your main directory: templates, contents, and plater.
+When you start Plater, you should have at least three different directories in your main directory: templates, contents, and plater. Output directory will be made if it doesn't already exist.
 
 In the main directory, run `python plater` and your website will be generated, assuming the templates and contents are there.
 
