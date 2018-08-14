@@ -1,4 +1,4 @@
-siteurl = 'something.com' #the site's base url
+siteurl = 'http://localhost:8000' #the site's base url
 templatedir = 'templates' # the name of your template dir
 contentdir = 'contents' # the name of your content dir
 contentext = '.md' #file extension of content
