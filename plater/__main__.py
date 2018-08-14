@@ -110,12 +110,15 @@ def processFile(filename):
 def indexPosts(posts):
     """Sort (processed) posts and create index pages."""
     indexed = {}
+    allposts = []
     for post in posts:
         try:
             indexed[post['type']].append(post)
         except KeyError:
             print("Found type:", post['type'])
             indexed[post['type']] = [post]
+        finally:
+            allposts.append(post)
 
     # Sort all the posts
     for type in indexed:
@@ -124,7 +127,7 @@ def indexPosts(posts):
             createIndex(type, indexed[type])
 
     if 'home' in settings.indexes:
-        createIndex('home', indexed)
+        createIndex('home', allposts)
 
 
 posts = []
