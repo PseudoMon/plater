@@ -13,139 +13,196 @@ env = Environment(loader=FileSystemLoader(settings.templatedir))
 md = markdown.Markdown(extensions=
     ['markdown.extensions.nl2br', 'markdown.extensions.smarty', 'markdown.extensions.meta'])
 
-def createPage(post):
-    """Create a page from a processed post and a template"""
-    try:
-        platefile = settings.templates[post['type']]
-    except KeyError:
-        platefile = settings.templates['default']
+class Page:
+    """A single page, generated from a single content file"""
+    def __init__(self, filename):
+        # filename is the path to the content file
+        self.source_file = filename
+        self.postdata = self.process_file(filename)
 
-    try:
-        template = env.get_template(platefile)
-    except jinjaerror.TemplateNotFound:
-        print("Template file", platefile, "not found.")
-        exit()
+        self.type = self.postdata['type']
 
-    output = template.render(siteurl=settings.siteurl, post=post)
-
-    if 'subdir' in post:
-        if post['subdir'] != ('home' or 'none'):
-            dir = "{}/{}".format(settings.outdir, post['subdir'])
-            if not os.path.exists(dir):
-                os.makedirs(dir)
-            dir = dir + "/"
-
+        if 'draft' in self.postdata or self.type in settings.dontpost:
+            self.dontpost = True 
         else:
-            dir = "{}/".format(settings.outdir)
-    else:
-        dir = "{}/".format(settings.outdir)
+            self.dontpost = False
 
-    filename = "{}{}.html".format(dir, post['slug'])
-    with open(filename, 'w') as fout:
-        fout.write(output)
+        if  not self.dontpost:
+            self.result_file = self.create_page(self.postdata)
 
-    print("Created", post['slug'])
 
-def createIndex(type, posts):
-    """Create a single index page."""
-    if type == 'home':
-        platefile = settings.templates['home']
-    else:
+    def process_file(self, filename):
+        """Process a filename to a templateable post"""
+        print(filename)
+
+        with open(filename, 'r') as file:
+            content = md.convert(file.read())
+        
+        meta = md.Meta
+
+        for data in meta:
+            if len(meta[data]) == 1:
+                meta[data] = meta[data][0]
+
+        if 'type' not in meta:
+            meta['type'] = "none"
+
+        if 'slug' in meta:
+            pass
+        elif 'title' in meta:
+            # Create valid output file name from title
+            meta['slug'] = re.sub(r'[^\w\d\s\-\_]', '', meta['title'])
+            meta['slug'] = re.sub(r'\s', '-', meta['slug']).lower()
+        else:
+            # Create output file name from file name
+            filename = filename.split('.')[0]
+            meta['slug'] = re.sub(r'\s', '-', filename).lower()
+
+        if 'date' not in meta:
+            meta['date'] = "0"
+
+        post = meta
+        post['content'] = content
+        
+        return post
+
+
+    def create_page(self, postdata):
+        """Create a page from a processed post and a template.
+        Returns path of the created file"""
         try:
-            platefile = settings.templates[type + "_index"]
+            platefile = settings.templates[postdata['type']]
         except KeyError:
-            print("Template for", type + "_index", "not found!")
-            print("Please provide it in settings.py")
+            platefile = settings.templates['default']
+
+        try:
+            template = env.get_template(platefile)
+        except jinjaerror.TemplateNotFound:
+            print("Template file", platefile, "not found.")
             exit()
 
-    try:
-        template = env.get_template(platefile)
-    except jinjaerror.TemplateNotFound:
-        print("Template file", platefile, "not found.")
-        exit()
 
-    output = template.render(siteurl=settings.siteurl, posts=posts)
+        if 'subdir' in postdata:
+            if postdata['subdir'] != ('home' or 'none'):
+                dir = f"{ settings.outdir }/{ postdata['subdir'] }"
+                
+                if not os.path.exists(dir):
+                    os.makedirs(dir)
+                
+                dir = dir + "/"
 
-    filename = "{}/{}.html".format(
-        settings.outdir, settings.indexes[type])
-    with open(filename, 'w') as fout:
-        fout.write(output)
+            else:
+                dir = f"{ settings.outdir }/"
 
-    print("Created", settings.indexes[type])
+        else:
+            dir = f"{ settings.outdir }/"
 
+        filename = f"{ dir }{ postdata['slug'] }.html"
+        
+        template.stream(siteurl=settings.siteurl, post=postdata).dump(filename)
 
-def processFile(filename):
-    """Process a filename to a templateable post"""
-    print(filename)
-    file = open(filename, "r")
-    content = md.convert(file.read())
-    meta = md.Meta
+        print("Created", postdata['slug'])
 
-    for data in meta:
-        if len(meta[data]) == 1:
-            meta[data] = meta[data][0]
+        return filename
 
-    if 'type' not in meta:
-        meta['type'] = "none"
-
-    if 'slug' in meta:
-        pass
-    elif 'title' in meta:
-        # Create valid output file name from title
-        meta['slug'] = re.sub(r'[^\w\d\s\-\_]', '', meta['title'])
-        meta['slug'] = re.sub(r'\s', '-', meta['slug']).lower()
-    else:
-        # Create output file name from file name
-        filename = filename.split('.')[0]
-        meta['slug'] = re.sub(r'\s', '-', filename).lower()
-
-    if 'date' not in meta:
-        meta['date'] = "0"
-
-    post = meta
-    post['content'] = content
-    return post
-
-
-def indexPosts(posts):
-    """Sort (processed) posts and create index pages."""
-    indexed = {}
-    allposts = []
-    for post in posts:
+class Index: 
+    """An index page, containing pages of the same type"""
+    def __init__(self, type, pages):
+        # pages should be a list of Page objects
+        self.type = type
         try:
-            indexed[post['type']].append(post)
+            self.indexname = settings.indexes[self.type]
         except KeyError:
-            print("Found type:", post['type'])
-            indexed[post['type']] = [post]
-        finally:
-            allposts.append(post)
+            print("Index name for type", self.type, "is not found!")
+            exit()
 
-    # Sort all the posts
-    for type in indexed:
-        indexed[type] = sorted(indexed[type], key=lambda k: k['date'], reverse=True)
-        if type in settings.indexes:
-            createIndex(type, indexed[type])
+        self.pages = pages
+
+        self.postsdata = self.get_postsdata(pages)
+        self.result_file = self.create_index(self.type, self.indexname, self.postsdata)
+
+    def get_postsdata(self, pages):
+        postsdata = []
+        for page in pages:
+            postsdata.append(page.postdata)
+        return postsdata 
+
+    def create_index(self, type, indexname, postsdata):
+        """Create index page from template."""
+        if type == 'home':
+            platefile = settings.templates['home']
+        else:
+            try:
+                platefile = settings.templates[type + "_index"]
+            except KeyError:
+                print("Template for", type + "_index", "not found!")
+                print("Please provide it in settings.py")
+                exit()
+
+        try:
+            template = env.get_template(platefile)
+        except jinjaerror.TemplateNotFound:
+            print("Template file", platefile, "not found.")
+            exit()
+
+        try:
+            filename = settings.indexes[type]
+        except KeyError:
+            print("Index name for type",type,"is not found!")
+            exit()
+
+        filename = f"{settings.outdir}/{settings.indexes[type]}.html"
+
+        template.stream(siteurl=settings.siteurl, posts=postsdata).dump(filename)
+
+        print("Created", settings.indexes[type])
+
+        return filename
+
+
+def index_pages(pages):
+    """Sort (processed) pages and create index pages."""
+    indexed = {}
+    allpages = []
+
+    for page in pages:
+        try:
+            indexed[page.type].append(page)
+        except KeyError:
+            print("Found type:", page.type)
+            indexed[page.type] = [page]
+        finally:
+            allpages.append(page)
+
+    # Sort all the pages
+    for pagetype in indexed:
+        pages = sorted(indexed[pagetype], key=lambda p: p.postdata['date'], reverse=True)
+        
+        if pagetype in settings.indexes:
+            print("We should be creating index")
+            print("TYPE:", pagetype)
+            print("PAGES:", pages)
+            # Index(type, pages)
 
     if 'home' in settings.indexes:
-        createIndex('home', allposts)
+        Index('home', allpages)
 
 
-posts = []
-print("Searching {}/*{}".format(
-    settings.contentdir, settings.contentext))
-contentfiles = glob.glob('{}/**/*{}'.format(
-    settings.contentdir, settings.contentext), recursive=True)
+def create_pages():
+    print(f"{ settings.contentdir }/**/*{ settings.contentext }")
 
-print("Processing files:")
-for filename in contentfiles:
-    post = processFile(filename)
+    files = glob.glob(f"{ settings.contentdir }/**/*{ settings.contentext }", recursive=True)
 
-    if not ('draft' in post or post['type'] in settings.dontpost):
-        createPage(post)
+    pages = []
+    for file in files:
+        pages.append(Page(file))
 
-    posts.append(post)
+    return pages
 
-print("Sorting posts and creating indexes...")
-indexPosts(posts)
+print("Creating pages from files...")
+pages = create_pages()
+
+print("Sorting pages and creating indexes...")
+index_pages(pages)
 
 print("Done!")
