@@ -10,8 +10,9 @@ dontpost = ['dataonly']
 # type of post: name of template file in templates folder
 templates = {
     'home': 'index.html',
-    'default': 'single.html' }
+    'default': 'single.html',
+    'post_index': 'post-index.html' }
 
 # Used for creating index files
 # type of posts: the index's filename
-indexes = {'home': 'index'}
+indexes = {'home': 'index', 'post': 'posts'}

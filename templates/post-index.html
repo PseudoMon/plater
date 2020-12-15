@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<h1>This is an index of posts with the type "post"</h1>
+{% for post in posts %}
+<div>
+  <h4><a href="{{ siteurl }}/{{ post['slug'] }}.html">
+    {{ post['title'] }}
+  </a></h4>
+</div>
+{% endfor %}
+
+
+{% endblock %}
