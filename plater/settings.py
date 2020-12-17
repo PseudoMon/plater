@@ -1,4 +1,9 @@
-siteurl = 'http://localhost:8000' #the site's base url
+siteurl = '' #the site's base url
+
+localport = 8000
+localurl = f'http://localhost:{ localport }' 
+#the site's base url on local
+
 templatedir = 'templates' # the name of your template dir
 contentdir = 'contents' # the name of your content dir
 contentext = '.md' #file extension of content

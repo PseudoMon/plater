@@ -15,20 +15,26 @@ md = markdown.Markdown(extensions=
 
 class Page:
     """A single page, generated from a single content file"""
-    def __init__(self, filename):
+    def __init__(self, filename, local=False):
         # filename is the path to the content file
         self.source_file = filename
         self.postdata = self.process_file(filename)
 
         self.type = self.postdata['type']
 
+        if local:
+            self.siteurl = settings.localurl
+        else:
+            self.siteurl = settings.siteurl
+
+
         if 'draft' in self.postdata or self.type in settings.dontpost:
             self.dontpost = True 
         else:
             self.dontpost = False
 
-        if  not self.dontpost:
-            self.result_file = self.create_page(self.postdata)
+        if not self.dontpost:
+            self.result_file = self.create_page(self.postdata, self.siteurl)
 
 
     def process_file(self, filename):
@@ -67,7 +73,7 @@ class Page:
         return post
 
 
-    def create_page(self, postdata):
+    def create_page(self, postdata, siteurl=settings.siteurl):
         """Create a page from a processed post and a template.
         Returns path of the created file"""
         try:
@@ -99,15 +105,21 @@ class Page:
 
         filename = f"{ dir }{ postdata['slug'] }.html"
         
-        template.stream(siteurl=settings.siteurl, post=postdata).dump(filename)
+        template.stream(siteurl=siteurl, post=postdata).dump(filename)
 
         print("Created", postdata['slug'])
 
         return filename
 
+
+    def recreate_file(self):
+        #TODO
+        print("WE SHOULD BE RECREATING THE FILE HERE")
+        pass
+
 class Index: 
     """An index page, containing pages of the same type"""
-    def __init__(self, type, pages):
+    def __init__(self, type, pages, local=False):
         # pages should be a list of Page objects
         self.type = type
         try:
@@ -118,16 +130,22 @@ class Index:
 
         self.pages = pages
 
-        self.postsdata = self.get_postsdata(pages)
-        self.result_file = self.create_index(self.type, self.indexname, self.postsdata)
+        if local:
+            self.siteurl = settings.localurl
+        else:
+            self.siteurl = settings.siteurl
 
+        self.postsdata = self.get_postsdata(pages)
+        self.result_file = self.create_index(self.type, self.indexname, self.postsdata, self.siteurl)
+
+        
     def get_postsdata(self, pages):
         postsdata = []
         for page in pages:
             postsdata.append(page.postdata)
         return postsdata 
 
-    def create_index(self, type, indexname, postsdata):
+    def create_index(self, type, indexname, postsdata, siteurl=settings.siteurl):
         """Create index page from template."""
         if type == 'home':
             platefile = settings.templates['home']
@@ -153,14 +171,14 @@ class Index:
 
         filename = f"{settings.outdir}/{settings.indexes[type]}.html"
 
-        template.stream(siteurl=settings.siteurl, posts=postsdata).dump(filename)
+        template.stream(siteurl=self.siteurl, posts=postsdata).dump(filename)
 
         print("Created", settings.indexes[type])
 
         return filename
 
 
-def index_pages(pages):
+def index_pages(pages, islocal=False):
     """Sort (processed) pages and create index pages."""
     indexed = {}
     allpages = []
@@ -182,31 +200,31 @@ def index_pages(pages):
         
         if pagetype in settings.indexes:
             print("Creating index for type", pagetype)
-            indexes.append(Index(pagetype, pages))
+            indexes.append(Index(pagetype, pages, islocal))
 
     if 'home' in settings.indexes:
-        indexes.append(Index('home', allpages))
+        indexes.append(Index('home', allpages, islocal))
 
     return indexes
 
 
-def create_pages():
+def create_pages(islocal=False):
     print(f"{ settings.contentdir }/**/*{ settings.contentext }")
 
     files = glob.glob(f"{ settings.contentdir }/**/*{ settings.contentext }", recursive=True)
 
     pages = []
     for file in files:
-        pages.append(Page(file))
+        pages.append(Page(file, islocal))
 
     return pages
 
-def init_plater():
+def init_plater(islocal=False):
     print("Creating pages from files...")
-    pages = create_pages()
+    pages = create_pages(islocal)
 
     print("Sorting pages and creating indexes...")
-    indexes = index_pages(pages)
+    indexes = index_pages(pages, islocal)
 
     print("Site generated!")
 
