@@ -18,7 +18,7 @@ class Page:
     def __init__(self, filename, local=False):
         # filename is the path to the content file
         self.source_file = filename
-        self.postdata = self.process_file(filename)
+        self.postdata = self.process_file()
 
         self.type = self.postdata['type']
 
@@ -34,11 +34,13 @@ class Page:
             self.dontpost = False
 
         if not self.dontpost:
-            self.result_file = self.create_page(self.postdata, self.siteurl)
+            self.result_file = self.create_page()
 
 
-    def process_file(self, filename):
+    def process_file(self):
         """Process a filename to a templateable post"""
+
+        filename = self.source_file
         print(filename)
 
         with open(filename, 'r') as file:
@@ -73,9 +75,13 @@ class Page:
         return post
 
 
-    def create_page(self, postdata, siteurl=settings.siteurl):
+    def create_page(self):
         """Create a page from a processed post and a template.
         Returns path of the created file"""
+
+        postdata = self.postdata
+        siteurl = self.siteurl
+
         try:
             platefile = settings.templates[postdata['type']]
         except KeyError:
@@ -114,8 +120,16 @@ class Page:
 
     def recreate_file(self):
         #TODO
-        print("WE SHOULD BE RECREATING THE FILE HERE")
-        pass
+        print("Recreating the file")
+        self.postdata = self.process_file()
+        
+        if 'draft' in self.postdata or self.type in settings.dontpost:
+            self.dontpost = True 
+        else:
+            self.dontpost = False
+
+        if not self.dontpost:
+            self.result_file = self.create_page()
 
 class Index: 
     """An index page, containing pages of the same type"""
