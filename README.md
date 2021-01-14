@@ -4,7 +4,7 @@ Plater is a simple static site generator made in Python. It's specifically made 
 I made Plater because I'm just looking for a simple way to make static sites with Jinja2's extensible layouting. To create custom static websites using Plater you'll need some knowledge of web-designing and [Jinja2](http://jinja.pocoo.org).
 
 ## Setting up
-To run Plater you'll need Python 3. Plater requires Markdown and Jinja2.
+To run Plater you'll need Python 3. Plater requires Markdown, Jinja2, and watchdog. You can install them manually using pip, or if you use pipenv, you can run `pipenv install`. 
 
 Copy or clone this repository to wherever directory you want to work in. This repo already contains example template and contents, but you can remove those if you like.
 
@@ -14,7 +14,7 @@ Edit `settings.py` as you like. For more details see the sections below.
 
 When you start Plater, you should have at least three different directories in your main directory: templates, contents, and plater. Output directory will be made if it doesn't already exist.
 
-In the main directory, run `python plater` and your website will be generated, assuming the templates and contents are there.
+In the main directory, run `python plater` (or `pipenv run python plater` if you use pipenv) and your website will be generated, assuming the templates and contents are there. You can also run `python plater --live` to create a local version that'll update with every file change (see the section of this readme titled "Local Testing").
 
 ## Content and Metadata
 Plater will look at your content directory and create a page out of every markdown file in there, unless noted otherwise (see below sections). The file can have some metadata written at its top like this:
@@ -27,7 +27,7 @@ Metadata will then be processed by either Plater or your Jinja2 templates. Metad
 
 You can make as many or as few metadata you like according to your needs. Every metadata will be sent to the Jinja template, which you can then use as you will.
 
-These metadatas are used by Plater:
+These metadatas are processed by Plater: 
 
 - `type` define what kind of content it is, which will be used when deciding the page's template, whether it will be indexed, and whether the page will be generated at all.
 
@@ -39,7 +39,7 @@ These metadatas are used by Plater:
 
 - `date` will be used to sort your content in indexes (latest date at the top, assuming you use ISO date). If not provided, your content will have a default date of 0.
 
-- `content` **may not** be used as a metadata, as Plater will use this key to contain the, well, the content of the post.
+- `content` **may not** be used as a metadata in the file, as Plater will use this key to contain the content of the post.
 
 All the above metadatas are optional.
 
@@ -105,7 +105,11 @@ Please note that these pages will still be available in the `posts` variable whe
 Plater doesn't do anything to your output directory other than inserting the pages it generated. If you want to add static files, such as stylesheets, Javascripts, images, etc, you can simply add them to the output directory. Plater also doesn't remove any files from the output directory, so if there's any unused files, you'll have to remove them yourself.
 
 ## Local Testing
-For local testing, I suggest setting `siteurl` to `http://localhost:[port]`. And then when you're trying to test the site, make a local server by running `python -m http.server [port]`. The default port is `8000`. Just remember to change `siteurl` back and regenerating when you're ready to upload to the real server.    
+Run plater with the `--live` option (`python plater --live`) to run a local server for your website. While the server is running, Plater will automatically rebuild itself when it detect changes in the content folder. This is great for testing your website locally and making changes.
+
+You can abort the server the usual way you abort command line program. In Windows, you can do this by clicking CTRL+C.
+
+Once you're done and ready to upload your site,  run the normal `python plater` so URLs in your website doesn't lead to localhost!  
 
 ## Future Features
 - Sort by something other than date
