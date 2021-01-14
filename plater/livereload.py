@@ -15,42 +15,20 @@ def run_server():
         print("Serving at port ", PORT)
         httpd.serve_forever()
 
-def on_page_modified(event, page):
-    print(f"Detecting changes on {event.src_path}")
-    page.recreate_file()
-
-def on_new_page(event, observer):
-    print(f"Detecting new page at {event.src_path}")
-    page = plater.Page(event.src_path, islocal=True)
-
-    print("Attempting to create watcher...")
-    page_handler = PatternMatchingEventHandler(patterns=[page.source_file])
-    page_handler.on_modified = functools.partial(on_page_modified, page=page)
-
-    observer.schedule(page_handler, 'contents')
-
+def on_content_changes(event):
+    print(f"Detecting changes at {event.src_path}")
+    print("Rebuilding...")
+    plater.init_plater(islocal=True)
 
 def setup_observer(pages, indexes):
     observer = Observer()
 
-    observed_files = []
+    print("Observing any changes to content...")
+    content_handler = PatternMatchingEventHandler(
+        patterns=[f"{ settings.contentdir }/*{ settings.contentext }"])
+    content_handler.on_any_event = on_content_changes
 
-    # Observe changes on each existing file
-    for page in pages:
-        print("Observing changes on", page.source_file)
-        page_handler = PatternMatchingEventHandler(patterns=[page.source_file])
-        page_handler.on_modified = functools.partial(on_page_modified, page=page)
-
-        observer.schedule(page_handler, 'contents')
-
-        observed_files.append(page.source_file)
-
-    new_page_handler = PatternMatchingEventHandler(
-        patterns=[f"{ settings.contentdir }/**/*{ settings.contentext }"],
-        ignore_patterns=observed_files)
-
-    new_page_handler.on_modified = functools.partial(on_new_page, observer)
-
+    observer.schedule(content_handler, 'contents')
 
     return observer
 
